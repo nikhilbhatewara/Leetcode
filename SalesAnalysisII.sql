@@ -10,6 +10,6 @@ on s.product_id = p.product_id
 )
 
 
-select buyer_id
+select distinct buyer_id
 from cte 
 where product_name = "S8" and buyer_id not in (select buyer_id from cte where product_name = 'iPhone');
