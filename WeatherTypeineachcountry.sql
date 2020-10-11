@@ -14,3 +14,15 @@ group by country_id
     from weatherCTE a
     left join countries b
     on a.country_id = b.country_id;
+
+                    
+ -- better solution
+                    
+                    SELECT 
+    country_name, 
+    CASE WHEN AVG(weather_state) <= 15 THEN "Cold"
+         WHEN AVG(weather_state) >= 25 THEN "Hot"
+    ELSE "Warm" END AS weather_type
+FROM Weather JOIN Countries USING (country_id)
+WHERE day BETWEEN DATE("2019-11-01") AND DATE("2019-11-30")
+GROUP BY country_id; 
