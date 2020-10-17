@@ -116,18 +116,12 @@ Without having clause
 
 */
 
-
-
-
-SELECT DISTINCT a.id, 
-                NAME 
-FROM            answer_table a 
-JOIN            accounts acc 
-ON              acc.id = a.id 
-ORDER BY        a.id # FOR each USER, 
-                find the min date, 
-                max          date, 
-AND             no OF consecutive dates BETWEEN them
+SELECT DISTINCT a.id, 
+                NAME 
+FROM            answer_table a 
+JOIN            accounts acc 
+ON              acc.id = a.id 
+ORDER BY        a.id
 
 /*
 
