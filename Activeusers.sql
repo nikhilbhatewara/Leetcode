@@ -130,3 +130,46 @@ ORDER BY        a.id
 
 */
 
+                           
+                           -- Quicker approach for this problem
+                           
+                           
+select a.id,a.login_date,b.login_date
+with CTE1 as
+(
+select a.id,a.login_date as a_login_date,b.login_date as b_login_date
+from logins a
+join logins b
+on a.id = b.id and
+datediff(b.login_date,a.login_date) between 1 and 4
+order by id,a.login_date,b.login_date
+)
+                           
+/*
+{"headers": ["id", "login_date", "login_date"], 
+ "values": 
+[[7, "2020-05-30", "2020-05-31"], 
+ [7, "2020-05-30", "2020-06-01"], 
+ [7, "2020-05-30", "2020-06-02"], 
+ [7, "2020-05-30", "2020-06-02"], 
+ [7, "2020-05-30", "2020-06-03"], 
+ [7, "2020-05-31", "2020-06-01"], 
+ [7, "2020-05-31", "2020-06-02"], 
+ [7, "2020-05-31", "2020-06-02"], 
+ [7, "2020-05-31", "2020-06-03"], 
+ [7, "2020-06-01", "2020-06-02"], 
+ [7, "2020-06-01", "2020-06-02"], 
+ [7, "2020-06-01", "2020-06-03"], 
+ [7, "2020-06-02", "2020-06-03"], 
+ [7, "2020-06-02", "2020-06-03"]]}
+                           */
+
+                           
+ select id,a_login_date,b_login_date
+from CTE1
+group by id,a_login_date
+having count(distinct b_login_date) = 4                          
+ 
+ /*
+ {"headers": ["id", "a_login_date", "b_login_date"], "values": [[7, "2020-05-30", "2020-05-31"]]}
+ */
