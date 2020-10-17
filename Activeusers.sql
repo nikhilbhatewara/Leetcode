@@ -165,11 +165,11 @@ order by id,a.login_date,b.login_date
                            */
 
                            
- select id,a_login_date,b_login_date
+ select id
 from CTE1
-group by id,a_login_date
+group by id
 having count(distinct b_login_date) = 4                          
  
  /*
- {"headers": ["id", "a_login_date", "b_login_date"], "values": [[7, "2020-05-30", "2020-05-31"]]}
+ {"headers": ["id"], "values": [[7]]}
  */
