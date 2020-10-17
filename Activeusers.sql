@@ -35,7 +35,7 @@ WITH temp0 AS
          SELECT   id, 
                   login_date, 
                   Dense_rank() OVER(partition BY id ORDER BY login_date) AS row_num 
-         FROM     logins ) , temp1 AS 
+         FROM     logins ) 
 
 /*
 
@@ -53,7 +53,7 @@ WITH temp0 AS
 
 */
 
-
+, temp1 AS 
 
 ( 
        SELECT id, 
