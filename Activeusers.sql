@@ -83,10 +83,11 @@ WITH temp0 AS
  , answer_table AS 
 ( 
          SELECT   id, 
+                  groupings, 
                   min(login_date) AS startdate, 
                   max(login_date) AS enddate, 
                   row_num, 
-                  groupings, 
+                  
                   count(id), 
                   datediff(max(login_date), min(login_date)) AS duration 
          FROM     temp1 
@@ -98,20 +99,12 @@ WITH temp0 AS
 
 /*
 Without having clause 
- {"headers": ["id", "startdate", "enddate", "row_num", "groupings", "count(id)", "duration"], 
+{"headers": ["id", "groupings", "startdate", "enddate", "row_num", "count(id)", "duration"], 
  "values": 
- [[1, "2020-05-30", "2020-05-30", 1, "2020-05-29", 1, 0], 
- [1, "2020-06-07", "2020-06-07", 2, "2020-06-05", 1, 0], 
- [7, "2020-05-30", "2020-06-03", 1, "2020-05-29", 6, 4], 
- [7, "2020-06-10", "2020-06-10", 6, "2020-06-04", 1, 0]]}
-
-                           
-                           
-                           
-                           
-                           
-                           
-                           
+[[1, "2020-05-29", "2020-05-30", "2020-05-30", 1, 1, 0], 
+ [1, "2020-06-05", "2020-06-07", "2020-06-07", 2, 1, 0], 
+ [7, "2020-05-29", "2020-05-30", "2020-06-03", 1, 6, 4], 
+ [7, "2020-06-04", "2020-06-10", "2020-06-10", 6, 1, 0]]}
                            
                            
                            With Having clause
