@@ -1,3 +1,16 @@
 - aggregate functions can be used in dense_rank 
 - use sum case when for multiple where conditions
 - For running total in mysql use SUM Col1 OVER(order by Col2) 
+- PIVOT SQL TABLE
+  For creating summary on numeric data use sum/max with case statement https://ubiq.co/database-blog/how-to-create-pivot-table-in-mysql/
+  For all string values, establish a row_number per group, then using conditional aggregation grouped by that row number:
+          SELECT 
+        max(case when continent = "America" then name else null end) as "America",
+        max(case when continent = "Asia" then name else null end) as "Asia",
+        max(case when continent = "Europe" then name else null end) as "Europe"
+        from (
+        select *,row_number() over(partition by continent order by name ) as rn
+            from student
+            order by name
+        ) as T1
+        group by rn
