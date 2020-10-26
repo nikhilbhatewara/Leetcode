@@ -14,3 +14,5 @@
             order by name
         ) as T1
         group by rn
+ 
+- COUNT(*) is all rows in the table, COUNT(Expression) is where the expression is non-null only.
