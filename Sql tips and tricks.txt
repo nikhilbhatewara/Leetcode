@@ -18,3 +18,4 @@ Order by dictates the values should be add according to which column
         group by rn
  
 - COUNT(*) is all rows in the table, COUNT(Expression) is where the expression is non-null only.
+- Avoid joins in "exclusion/not" based questions. Use NOT IN
