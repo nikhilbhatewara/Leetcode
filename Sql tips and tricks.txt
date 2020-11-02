@@ -19,3 +19,5 @@ Order by dictates the values should be add according to which column
  
 - COUNT(*) is all rows in the table, COUNT(Expression) is where the expression is non-null only.
 - Avoid joins in "exclusion/not" based questions. Use NOT IN
+- https://byrony.github.io/summary-of-sql-questions-on-leetcode.html
+- https://github.com/jjjchens235/leetcode-sql-unlocked
