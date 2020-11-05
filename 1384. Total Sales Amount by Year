@@ -1,0 +1,107 @@
+SELECT a.product_id, b.product_name, a.report_year, a.total_amount
+FROM (
+    SELECT product_id, '2018' AS report_year,
+        average_daily_sales * (DATEDIFF(LEAST(period_end, '2018-12-31'), GREATEST(period_start, '2018-01-01'))+1) AS total_amount
+    FROM Sales
+    WHERE YEAR(period_start)=2018 OR YEAR(period_end)=2018
+
+    UNION ALL
+
+    SELECT product_id, '2019' AS report_year,
+        average_daily_sales * (DATEDIFF(LEAST(period_end, '2019-12-31'), GREATEST(period_start, '2019-01-01'))+1) AS total_amount
+    FROM Sales
+    WHERE YEAR(period_start)<=2019 AND YEAR(period_end)>=2019
+
+    UNION ALL
+
+    SELECT product_id, '2020' AS report_year,
+        average_daily_sales * (DATEDIFF(LEAST(period_end, '2020-12-31'), GREATEST(period_start, '2020-01-01'))+1) AS total_amount
+    FROM Sales
+    WHERE YEAR(period_start)=2020 OR YEAR(period_end)=2020
+) a
+LEFT JOIN Product b
+ON a.product_id = b.product_id
+ORDER BY a.product_id, a.report_year
+
+
+
+
+
+
+---- 
+
+
+Keywords: hard-code years, unpivot table, CTE, type-conversion
+
+The tricky part of this problem is that the sales period of an item can extend over more than one year, for example with period_start = '2018-12-01' and period_end = '2019-01-05' we have 31 days of sale in year 2018 and 5 days of sale in 2019.
+
+That is, we need to expand one row that contains sales in multiple years into multiple rows. Given that one row containing multiple years could be viewed as (and easily divided into) multiple columns, this problem essentially asks us to turn columns into rows, aka, unpivot the table. While pivot is a more advanced topic and requires specific syntax, unpivot can be simply achieved by using UNION ALL.
+
+Based on above analysis, the solution consists of following three parts:
+
+single row to multiple columns: divide sales into multiple columns -- > sales_by_year
+Implementation see code at the end: ust think of CTE as an elegant way of writing sub-queries without the nested structure; GREATEST() and LEAST() are similar to MAX() and MIN() but they operate along rows( so they accept multiple columns/ fields as arguments); +1 since DATEDIFF() excludes one of the start/ end dates.
+product_id	period_start	period_end	sales_2018	sales_2019	sales_2020
+2	2018-12-01	2020-01-01	31 * avg_sales	365 * avg_sales	1 * avg_sales
+multiple columns to multiple rows: unpivot sales --> sales_by_year_unpivot
+Implementation see code at the end:UNION ALL would just stack the sales from different year on top of each other
+product_id	report_year	total_amount
+2	2018	31 * avg_sales
+2	2019	365 * avg_sales
+2	2020	1 * avg_sales
+filter and sort rows to get final result --> result_table
+Implementation see code at the end: no need for GROUP BY , reason see caveat 2
+Caveats:
+
+(New?) Test cases enforce column type and column name. The column names need to be capitalized; the product_id is of type int, therefore when sorting, 10 will naturally follow 2, but the result table requires otherwise, i.e. 1 followed by 10 and then followed by 2, so converting PRODUCT_ID to CHAR type solves this issue.
+Since in the orginal Sales table product_id is primary key, after UNION ALL, product_id combined with report_year will serve as the new primary key, there is no need to use GROUP BY in the last/ main query.
+The Sales only contains 3 years, so I hard-coded all three years, if there are multiple years, recursive CTE is needed, but I think it's beyond the scope of an (less-than-one-hour) interview.
+rows with total_amount = 0 are excluded from result table, be aware.
+WITH 
+    sales_by_year AS
+    (
+	SELECT 
+        product_id
+        , average_daily_sales * GREATEST(DATEDIFF(LEAST('2018-12-31', period_end), GREATEST(period_start, '2018-01-01'))+1, 0) AS sales_2018
+        , average_daily_sales * GREATEST(DATEDIFF(LEAST('2019-12-31', period_end), GREATEST(period_start, '2019-01-01'))+1, 0) AS sales_2019
+        , average_daily_sales * GREATEST(DATEDIFF(LEAST('2020-12-31', period_end), GREATEST(period_start, '2020-01-01'))+1, 0) AS sales_2020
+     FROM 
+        Sales
+    )
+
+    , sales_by_year_unpivot AS
+    (
+    SELECT
+        product_id
+        , '2018' AS report_year
+        , sales_2018 AS total_amount
+    FROM
+        sales_by_year
+    UNION ALL
+    SELECT
+        product_id
+        , '2019' AS report_year
+        , sales_2019 AS total_amount
+    FROM
+        sales_by_year
+    UNION ALL
+    SELECT
+        product_id
+        , '2020' AS report_year
+        , sales_2020 AS total_amount
+    FROM
+        sales_by_year
+    )
+
+SELECT 
+    CAST(a.product_id AS CHAR) AS PRODUCT_ID  # required for the correct output
+    , a.product_name AS PRODUCT_NAME
+    , b.report_year AS REPORT_YEAR
+    , b.total_amount AS TOTAL_AMOUNT
+FROM Product AS a
+    JOIN sales_by_year_unpivot AS b ON a.product_id = b.product_id
+WHERE b.total_amount <> 0
+ORDER BY
+    # a.product_id # if 'natural ordering' AND type conversion are both desired 
+    CAST(a.product_id AS CHAR)
+    , b.report_year;
