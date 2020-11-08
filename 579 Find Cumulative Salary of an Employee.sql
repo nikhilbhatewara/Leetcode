@@ -128,3 +128,43 @@ id	month	Salary
 2	1	20
 3	3	100
 3	2	40
+
+                                                          
+                                                          
+ -- To be tested
+                                                          
+/*
+1. For each employee find the most recent month (max month) only when employee has more than 1 paycheck
+2. Filter table to exclude most recent month(left join) since we want to retian employee with just 1 pay check
+3 .calculate cumulative salary using over()
+*/
+
+
+with CTE1 as 
+(
+  
+  select id,max(month) as maxmonth
+  from Employee
+  group by id
+  having count(month) > 1
+  
+)  
+
+, CTE2 as 
+(
+  select *
+  from Employee e
+  where (id,month) not in (
+    select id,maxmonth
+    from CTE1
+    
+    ) 
+
+ 
+)
+  
+
+
+SELECT id,month,sum(salary) over(partition by id order by month) as cum_sal 
+FROM CTE2
+order by id , month desc
