@@ -10,3 +10,10 @@ from actordirector
 group by actor_id,director_id
 having count(*) >= 3
     ) as T;
+
+-- better approach
+
+SELECT actor_id,director_id
+FROM ActorDirector
+group by actor_id,director_id
+having count(*) >= 3
