@@ -42,3 +42,19 @@ join events as e2 on temp1.event_type = e2.event_type   # Second, join Events ta
 where e2.occurences > temp1.ave_occurences              # Third, the 'occurences' should be greater than the average of 'occurences'
 group by business_id
 having count(distinct temp1.event_type) > 1             # (More than one event type with 'occurences' greater than 1)
+
+
+-- another approach
+
+with cte1 as (
+SELECT event_type, avg(occurences) as avg_of_event
+FROM Events
+group by event_type
+  )
+  
+  
+  select business_id
+  from Events a
+  join cte1 b on a.event_type = b.event_type and occurences > avg_of_event
+  group by business_id
+  having count(distinct a.event_type) > 1
