@@ -25,3 +25,4 @@ Order by dictates the values should be add according to which column
 - https://github.com/jjjchens235/leetcode-sql-unlocked
 - Use group concat to combine multiple rows into 1 https://stackoverflow.com/questions/276927/can-i-concatenate-multiple-mysql-rows-into-one-field
 - LEAD and LAG requires OVER 
+- Read about date_Add function
