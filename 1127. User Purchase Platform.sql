@@ -82,3 +82,71 @@ LEFT JOIN (
 ) t
 ON p.platform=t.platform AND p.spend_date=t.spend_date
 GROUP BY spend_date, platform
+
+
+
+--- my approach
+
+**Query #1**
+
+    with cte1 as 
+    (
+    
+    select spend_date, platform, sum(amount) as total_amount,count(distinct user_id) as total_users
+    from Spending
+    group by spend_date, platform,user_id
+    
+    	union
+    
+    
+    select spend_date, "both" as platform, sum(amount) as total_amount,count(distinct user_id) as total_users
+    from Spending
+    where (user_id,spend_date)
+                in 
+                (
+                select   user_id,spend_date
+                  from Spending
+                  group by user_id,spend_date
+                  having count(distinct platform) = 2
+                ) 
+    group by spend_date
+    
+    )
+    
+    
+    ,cte2 as 
+    (
+    
+    select *
+    from
+      (
+      select "desktop" as platform
+      union
+      select "mobile" as platform
+      union
+      select "both" as platform
+      ) as T1
+    	join (select distinct spend_date from Spending) as T2
+    )
+    
+    
+    
+    
+    
+    select a.spend_date,a.platform,ifnull(total_amount,0) as total_amount,ifnull(total_users,0) as total_users
+    from cte2 a
+    left join cte1 b
+    on a.spend_date = b.spend_date and a.platform = b.platform;
+
+| spend_date          | platform | total_amount | total_users |
+| ------------------- | -------- | ------------ | ----------- |
+| 2019-07-01 00:00:00 | desktop  | 200          | 2           |
+| 2019-07-01 00:00:00 | mobile   | 200          | 2           |
+| 2019-07-01 00:00:00 | both     | 200          | 1           |
+| 2019-07-02 00:00:00 | desktop  | 100          | 1           |
+| 2019-07-02 00:00:00 | mobile   | 100          | 1           |
+| 2019-07-02 00:00:00 | both     | 0            | 0           |
+
+---
+
+[View on DB Fiddle](https://www.db-fiddle.com/f/g3krvZCRzdhwSgHE4Sqo1X/0)
