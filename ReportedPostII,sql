@@ -1,0 +1,31 @@
+
+with reported as (
+SELECT action_date,count(*) as count_reported
+FROM Actions
+where action = "report" and extra="spam"
+group by action_date
+  )
+,
+
+removed as (
+
+select action_date,count(*) as count_removed
+from Actions
+where action = "report" and extra="spam" and post_id in (select post_id from Removals)
+group by action_date
+)
+  
+
+
+  
+select avg(prop_removed)
+from
+(
+  select a.action_date, (100 * ifnull(count_removed/count_reported,0)) as prop_removed
+  from reported a
+  left join removed b
+  on a.action_date = b.action_date
+  
+) as T
+  
+  
